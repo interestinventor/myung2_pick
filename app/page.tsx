@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { headers } from "next/headers"; // 1. headers 불러오기 추가
+import Link from "next/link";
 
 // Supabase에서 가져올 데이터의 타입 정의
 type ExtraLink = { name: string; url: string };
@@ -52,64 +53,61 @@ export default async function Home() {
 
           {/* 상품 카드 그리드 (반응형: 모바일 1열, 태블릿 2열, PC 3열) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categoryItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 flex flex-col">
-                
-                {/* 썸네일 (Next.js Image 대신 img 태그 사용 - 외부 링크 제약 완화 목적) */}
-                <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
-                  {item.thumbnail_url ? (
-                    <img 
-                      src={item.thumbnail_url} 
-                      alt={item.product_name}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center w-full h-full text-gray-400 text-sm">
-                      No Image
-                    </div>
-                  )}
-                </div>
+  {categoryItems.map((item) => (
+    <div key={item.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 flex flex-col h-full">
+      
+      {/* 1. 상세 페이지로 이동하는 구역 (이미지 + 텍스트) */}
+      <Link href={`/item/${item.id}`} className="group flex-1 flex flex-col">
+        <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+          {item.thumbnail_url ? (
+            <img 
+              src={item.thumbnail_url} 
+              alt={item.product_name}
+              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full text-gray-400 text-sm">
+              No Image
+            </div>
+          )}
+        </div>
+        <div className="p-5 flex-1 flex flex-col">
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{item.product_name}</h3>
+          <p className="mt-2 text-sm text-gray-600 line-clamp-2 min-h-[2.5rem]">
+            "{item.comment}"
+          </p>
+          {item.price_info && (
+             <div className="mt-4">
+               <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-md font-medium">
+                 {item.price_info}
+               </span>
+             </div>
+          )}
+        </div>
+      </Link>
 
-                {/* 상품 정보 영역 */}
-                <div className="p-5 flex-1 flex flex-col">
-                  <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{item.product_name}</h3>
-                  <p className="mt-2 text-sm text-gray-600 line-clamp-2 min-h-[2.5rem]">
-                    "{item.comment}"
-                  </p>
-                  
-                  {/* 가격 정보 뱃지 */}
-                  {item.price_info && (
-                    <div className="mt-4">
-                      <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-md font-medium">
-                        {item.price_info}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* 하단 링크 버튼 영역 (flex-grow로 항상 맨 밑에 고정) */}
-                  <div className="mt-auto pt-6 flex flex-wrap gap-2">
-                    {item.link_coupang && (
-                      <a href={item.link_coupang} target="_blank" rel="noreferrer" className="flex-1 min-w-[45%] text-center bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded transition-colors">
-                        🛒 쿠팡
-                      </a>
-                    )}
-                    {item.link_naver && (
-                      <a href={item.link_naver} target="_blank" rel="noreferrer" className="flex-1 min-w-[45%] text-center bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-2 rounded transition-colors">
-                        🟢 네이버
-                      </a>
-                    )}
-                    
-                    {/* extra_links 렌더링 */}
-                    {item.extra_links?.map((link, index) => (
-                      <a key={index} href={link.url} target="_blank" rel="noreferrer" className="flex-1 min-w-[45%] text-center bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold py-2 rounded transition-colors">
-                        {link.name}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* 2. 외부 링크 버튼 구역 (Link 태그 밖으로 분리) */}
+      <div className="px-5 pb-5 mt-auto flex flex-wrap gap-2">
+        {item.link_coupang && (
+          <a href={item.link_coupang} target="_blank" rel="noreferrer" className="flex-1 min-w-[45%] text-center bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded transition-colors">
+            🛒 쿠팡
+          </a>
+        )}
+        {item.link_naver && (
+          <a href={item.link_naver} target="_blank" rel="noreferrer" className="flex-1 min-w-[45%] text-center bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-2 rounded transition-colors">
+            🟢 네이버
+          </a>
+        )}
+        {item.extra_links?.map((link, index) => (
+          <a key={index} href={link.url} target="_blank" rel="noreferrer" className="flex-1 min-w-[45%] text-center bg-gray-800 hover:bg-gray-900 text-white text-xs font-semibold py-2 rounded transition-colors">
+            {link.name}
+          </a>
+        ))}
+      </div>
+      
+    </div>
+  ))}
+</div>
         </section>
       ))}
     </div>
