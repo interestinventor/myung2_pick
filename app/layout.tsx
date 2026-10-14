@@ -5,6 +5,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "명이pick | 소비왕의 아카이브",
   description: "뭐사야돼? 했을 때 가장 생각나는 답변을 모아두었습니다.",
+  verification: {
+    google: "3tyPvQWWG-OoNPS79_SeWWsNL5NOh8VUsCQwAb6TGPM",
+  },
 };
 
 export default function RootLayout({
